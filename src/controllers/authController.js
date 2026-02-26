@@ -1,121 +1,90 @@
 import User from "../models/User.js";
+import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-
-
-
 
 /* ================= REGISTER ================= */
 export const registerUser = async (req, res) => {
   try {
-    console.log("REGISTER BODY:", req.body);
-
-    const { username, password, role } = req.body;
+    const { name, email, password, role, contact, rollNumber } = req.body;
 
     // Validation
-    if (!username || !password) {
-      return res.status(400).json({
-        message: "All fields are required"
-      });
+    if (!name || !email || !password || !role) {
+      return res.status(400).json({ message: "Required fields missing" });
     }
 
-    // Check existing user
-    const existingUser = await User.findOne({ username });
+    if (role === "student" && !rollNumber) {
+      return res.status(400).json({ message: "Roll number required" });
+    }
+
+    if (role !== "student" && !contact) {
+      return res.status(400).json({ message: "Contact required" });
+    }
+
+    const existingUser = await User.findOne({ email });
     if (existingUser) {
-      return res.status(409).json({
-        message: "Username already exists"
-      });
+      return res.status(409).json({ message: "Email already registered" });
     }
 
-    // Create user (RAW password)
-    const user = await User.create({
-      username,
-      password,
-      role: role || "admin"
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    await User.create({
+      name,
+      email,
+      password: hashedPassword,
+      role,
+      contact: role !== "student" ? contact : undefined,
+      rollNumber: role === "student" ? rollNumber : undefined,
     });
 
-    // Token (optional on register)
-    const token = jwt.sign(
-      { id: user._id, role: user.role },
-      process.env.JWT_SECRET || "secretkey",
-      { expiresIn: "1d" }
-    );
-
-    res.status(201).json({
-      message: "User registered successfully",
-      user: {
-        id: user._id,
-        username: user.username,
-        role: user.role
-      },
-      token
-    });
+    res.status(201).json({ message: "Registration successful" });
   } catch (error) {
     console.error("REGISTER ERROR:", error);
-    res.status(500).json({
-      message: "Server error"
-    });
+
+    if (error.code === 11000) {
+      return res.status(409).json({ message: "Duplicate value error" });
+    }
+
+    res.status(500).json({ message: "Server error" });
   }
 };
 
+/* ================= LOGIN ================= */
 export const loginUser = async (req, res) => {
   try {
-    console.log("👉 LOGIN BODY:", req.body);
+    const { email, password, role, rollNumber } = req.body;
 
-    // Block array payload
-    if (Array.isArray(req.body)) {
-      return res.status(400).json({
-        message: "Invalid login payload format"
-      });
-    }
-
-    const { username, password } = req.body;
-
-    // Validate fields
-    if (!username || !password) {
-      return res.status(400).json({
-        message: "Username and password are required"
-      });
-    }
-
-    // Find user
-    const user = await User.findOne({ username });
-
-    console.log("👉 USER FOUND:", user);
-
+    const user = await User.findOne({ email, role });
     if (!user) {
-      return res.status(401).json({
-        message: "User not found"
-      });
+      return res.status(401).json({ message: "Invalid credentials" });
     }
 
-    // RAW password check (dummy data)
-    if (user.password !== password) {
-      return res.status(401).json({
-        message: "Incorrect password"
-      });
+    if (role === "student" && user.rollNumber !== rollNumber) {
+      return res.status(401).json({ message: "Invalid roll number" });
     }
 
-    // Generate token
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(401).json({ message: "Invalid credentials" });
+    }
+
     const token = jwt.sign(
-      { userId: user._id, role: user.role },
-      process.env.JWT_SECRET || "secretkey",
+      { id: user._id, role: user.role },
+      process.env.JWT_SECRET,
       { expiresIn: "1d" }
     );
 
-    // Success
-    return res.status(200).json({
+    res.json({
+      message: "Login successful",
+      token,
       user: {
         id: user._id,
-        username: user.username,
-        role: user.role
+        name: user.name,
+        role: user.role,
+        email: user.email,
       },
-      token
     });
-
   } catch (error) {
-    console.error("❌ LOGIN ERROR:", error);
-    return res.status(500).json({
-      message: "Internal server error"
-    });
+    console.error("LOGIN ERROR:", error);
+    res.status(500).json({ message: "Server error" });
   }
 };
