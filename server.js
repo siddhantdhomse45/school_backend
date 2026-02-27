@@ -13,9 +13,16 @@ dotenv.config();
 
 const app = express();
 
-/* MIDDLEWARE */
-app.use(cors());
-app.use(express.json()); // ⭐ MUST HAVE
+app.use(
+  cors({
+    origin: [
+      "http://localhost:5173",          // local frontend
+      "https://student-erp-gamma.vercel.app/" // ⭐ Vercel frontend URL
+    ],
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true, // if using cookies / auth headers
+  })
+); 
 
 /* ROUTES */
 app.use("/api/auth", authRoutes);
