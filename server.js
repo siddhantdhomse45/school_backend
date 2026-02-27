@@ -7,6 +7,8 @@ import studentRoutes from "./src/routes/studentRoutes.js";
 import staffRoutes from "./src/routes/staffRoutes.js";
 import attendanceRoutes from "./src/routes/attendanceRoutes.js";
 import admissionRoutes from "./src/routes/admissionRoutes.js";
+import contactRoutes from "./src/routes/contactRoutes.js";                          
+
 dotenv.config();
 
 const app = express();
@@ -21,7 +23,7 @@ app.use("/api/students", studentRoutes);
 app.use("/api/staff", staffRoutes);
 app.use("/api/attendance", attendanceRoutes);
 app.use("/api/admission", admissionRoutes);
-
+app.use("/api/contact", contactRoutes);
 
 /* DB */
 mongoose
