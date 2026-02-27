@@ -1,12 +1,145 @@
+// import Admission from "../models/Admission.js";
+
+// /* ===============================
+//    CREATE Admission
+// ================================ */
+// export const createAdmission = async (req, res) => {
+//   try {
+//     const admission = new Admission(req.body);
+//     await admission.save();
+
+//     res.status(201).json({
+//       success: true,
+//       message: "Admission form submitted successfully",
+//       data: admission,
+//     });
+//   } catch (error) {
+//     res.status(500).json({
+//       success: false,
+//       message: "Failed to submit admission form",
+//       error: error.message,
+//     });
+//   }
+// };
+
+// /* ===============================
+//    READ ALL Admissions
+// ================================ */
+// export const getAllAdmissions = async (req, res) => {
+//   try {
+//     const admissions = await Admission.find().sort({ createdAt: -1 });
+
+//     res.status(200).json({
+//       success: true,
+//       count: admissions.length,
+//       data: admissions,
+//     });
+//   } catch (error) {
+//     res.status(500).json({
+//       success: false,
+//       error: error.message,
+//     });
+//   }
+// };
+
+// /* ===============================
+//    READ Single Admission by ID
+// ================================ */
+// export const getAdmissionById = async (req, res) => {
+//   try {
+//     const admission = await Admission.findById(req.params.id);
+
+//     if (!admission) {
+//       return res.status(404).json({
+//         success: false,
+//         message: "Admission not found",
+//       });
+//     }
+
+//     res.status(200).json({
+//       success: true,
+//       data: admission,
+//     });
+//   } catch (error) {
+//     res.status(500).json({
+//       success: false,
+//       error: error.message,
+//     });
+//   }
+// };
+
+// /* ===============================
+//    UPDATE Admission
+// ================================ */
+// export const updateAdmission = async (req, res) => {
+//   try {
+//     const updatedAdmission = await Admission.findByIdAndUpdate(
+//       req.params.id,
+//       req.body,
+//       { new: true, runValidators: true }
+//     );
+
+//     if (!updatedAdmission) {
+//       return res.status(404).json({
+//         success: false,
+//         message: "Admission not found",
+//       });
+//     }
+
+//     res.status(200).json({
+//       success: true,
+//       message: "Admission updated successfully",
+//       data: updatedAdmission,
+//     });
+//   } catch (error) {
+//     res.status(500).json({
+//       success: false,
+//       error: error.message,
+//     });
+//   }
+// };
+
+// /* ===============================
+//    DELETE Admission
+// ================================ */
+// export const deleteAdmission = async (req, res) => {
+//   try {
+//     const deletedAdmission = await Admission.findByIdAndDelete(req.params.id);
+
+//     if (!deletedAdmission) {
+//       return res.status(404).json({
+//         success: false,
+//         message: "Admission not found",
+//       });
+//     }
+
+//     res.status(200).json({
+//       success: true,
+//       message: "Admission deleted successfully",
+//     });
+//   } catch (error) {
+//     res.status(500).json({
+//       success: false,
+//       error: error.message,
+//     });
+//   }
+// };
+
+
+
+
+
+
 import Admission from "../models/Admission.js";
 
 /* ===============================
-   CREATE Admission
+   CREATE Admission (UPDATED)
 ================================ */
 export const createAdmission = async (req, res) => {
   try {
-    const admission = new Admission(req.body);
-    await admission.save();
+    console.log("REQ BODY:", req.body); // 🔍 Debug
+
+    const admission = await Admission.create(req.body);
 
     res.status(201).json({
       success: true,
@@ -14,10 +147,29 @@ export const createAdmission = async (req, res) => {
       data: admission,
     });
   } catch (error) {
+    console.error("ADMISSION ERROR:", error);
+
+    // ✅ Mongoose validation error
+    if (error.name === "ValidationError") {
+      return res.status(400).json({
+        success: false,
+        message: Object.values(error.errors)
+          .map((e) => e.message)
+          .join(", "),
+      });
+    }
+
+    // ✅ Duplicate key error
+    if (error.code === 11000) {
+      return res.status(409).json({
+        success: false,
+        message: "Admission already exists",
+      });
+    }
+
     res.status(500).json({
       success: false,
-      message: "Failed to submit admission form",
-      error: error.message,
+      message: error.message,
     });
   }
 };
@@ -37,13 +189,13 @@ export const getAllAdmissions = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      error: error.message,
+      message: error.message,
     });
   }
 };
 
 /* ===============================
-   READ Single Admission by ID
+   READ Single Admission
 ================================ */
 export const getAdmissionById = async (req, res) => {
   try {
@@ -63,7 +215,7 @@ export const getAdmissionById = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      error: error.message,
+      message: error.message,
     });
   }
 };
@@ -94,7 +246,7 @@ export const updateAdmission = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      error: error.message,
+      message: error.message,
     });
   }
 };
@@ -120,7 +272,7 @@ export const deleteAdmission = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      error: error.message,
+      message: error.message,
     });
   }
 };
