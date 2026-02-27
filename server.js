@@ -5,6 +5,7 @@ import mongoose from "mongoose";
 import authRoutes from "./src/routes/authRoutes.js";
 import studentRoutes from "./src/routes/studentRoutes.js";
 import staffRoutes from "./src/routes/staffRoutes.js";
+import attendanceRoutes from "./src/routes/attendanceRoutes.js";
 dotenv.config();
 
 const app = express();
@@ -17,6 +18,7 @@ app.use(express.json()); // ⭐ MUST HAVE
 app.use("/api/auth", authRoutes);
 app.use("/api/students", studentRoutes);
 app.use("/api/staff", staffRoutes);
+app.use("/api/attendance", attendanceRoutes);
 
 
 /* DB */
