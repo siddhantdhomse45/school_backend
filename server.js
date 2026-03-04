@@ -58,8 +58,25 @@ dotenv.config();
 const app = express();
 
 /* ================= MIDDLEWARE ================= */
-app.use(cors());
-app.use(express.json());
+const allowedOrigins = [
+  "https://studenterps-git-main-tejashris-projects-fd4aa30a.vercel.app/",
+  // "https://drushtieducation.com",
+  "http://localhost:5173"
+];
+
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes(origin)) return callback(null, true);
+
+      return callback(new Error("CORS Not Allowed: " + origin));
+    },
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true
+  })
+);
 
 /* ================= DB CONNECTION ================= */
 mongoose.set("bufferCommands", false);
