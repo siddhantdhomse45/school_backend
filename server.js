@@ -141,7 +141,7 @@ app.use(express.urlencoded({ extended: true }));
 
 /* ================= CORS ================= */
 const allowedOrigins = [
-  "https://studenterps-git-main-tejashris-projects-fd4aa30a.vercel.app",
+  "https://student-erp-beta.vercel.app",
   "http://localhost:5173",
 ];
 
