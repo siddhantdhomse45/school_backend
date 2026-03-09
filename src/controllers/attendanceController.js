@@ -1,4 +1,5 @@
 import Attendance from "../models/Attendance.js";
+import Student from "../models/Student.js";
 
 
 export const markAttendance = async (req, res) => {
@@ -33,17 +34,48 @@ export const markAttendance = async (req, res) => {
 
 /* ===== GET STUDENT ATTENDANCE ===== */
 export const getStudentAttendance = async (req, res) => {
-  const data = await Attendance.find({ role: "student" })
-    .populate("user", "name rollNumber")
+  const { className, date } = req.query;
+  
+  let query = { userType: "Student" };
+  
+  if (className) {
+    query.className = className;
+  }
+  if (date) {
+    query.date = date;
+  }
+  
+  const data = await Attendance.find(query)
+    .populate("userId", "name seatNumber className")
     .sort({ date: -1 });
 
   res.json(data);
 };
 
+/* ===== GET STUDENT BY CLASS ===== */
+export const getStudentsByClass = async (req, res) => {
+  const { className } = req.query;
+  
+  try {
+    const query = className ? { className } : {};
+    const students = await Student.find(query).sort({ name: 1 });
+    res.json(students);
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
 /* ===== GET STAFF ATTENDANCE ===== */
 export const getStaffAttendance = async (req, res) => {
-  const data = await Attendance.find({ role: "staff" })
-    .populate("user", "name")
+  const { date } = req.query;
+  
+  let query = { userType: "Staff" };
+  if (date) {
+    query.date = date;
+  }
+  
+  const data = await Attendance.find(query)
+    .populate("userId", "name")
     .sort({ date: -1 });
 
   res.json(data);
