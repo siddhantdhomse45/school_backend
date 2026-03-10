@@ -41,6 +41,13 @@ const userSchema = new mongoose.Schema(
       sparse: true, // ✅ allows multiple null values
       default: undefined,
     },
+
+    // For parent users - link to their child's Student record
+    studentId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Student",
+      default: null,
+    },
   },
   { timestamps: true }
 );

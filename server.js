@@ -6,9 +6,11 @@ import mongoose from "mongoose";
 import authRoutes from "./src/routes/authRoutes.js";
 import studentRoutes from "./src/routes/studentRoutes.js";
 import staffRoutes from "./src/routes/staffRoutes.js";
+import parentRoutes from "./src/routes/parentRoutes.js";
 import attendanceRoutes from "./src/routes/attendanceRoutes.js";
 import admissionRoutes from "./src/routes/admissionRoutes.js";
 import contactRoutes from "./src/routes/contactRoutes.js";
+
 
 dotenv.config();
 
@@ -41,9 +43,11 @@ app.use(
 app.use("/api/auth", authRoutes);
 app.use("/api/students", studentRoutes);
 app.use("/api/staff", staffRoutes);
+app.use("/api/parents", parentRoutes);
 app.use("/api/attendance", attendanceRoutes);
 app.use("/api/admission", admissionRoutes);
 app.use("/api/contact", contactRoutes);
+
 
 /* ================= HEALTH CHECK ================= */
 app.get("/", (req, res) => {

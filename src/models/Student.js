@@ -22,6 +22,11 @@ const studentSchema = new mongoose.Schema(
       enum: ["boy", "girl"],
       required: true,
     },
+    parentId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      default: null,
+    },
   },
   { timestamps: true }
 );
