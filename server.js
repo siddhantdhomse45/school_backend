@@ -10,7 +10,8 @@ import parentRoutes from "./src/routes/parentRoutes.js";
 import attendanceRoutes from "./src/routes/attendanceRoutes.js";
 import admissionRoutes from "./src/routes/admissionRoutes.js";
 import contactRoutes from "./src/routes/contactRoutes.js";
-
+import parentDashboardRoutes from "./src/routes/parentDashboardRoutes.js";
+import feeRoutes from "./src/routes/feeRoutes.js";
 
 dotenv.config();
 
@@ -47,6 +48,9 @@ app.use("/api/parents", parentRoutes);
 app.use("/api/attendance", attendanceRoutes);
 app.use("/api/admission", admissionRoutes);
 app.use("/api/contact", contactRoutes);
+app.use("/api/parent", parentDashboardRoutes);
+app.use("/api/fees", feeRoutes);
+
 
 
 /* ================= HEALTH CHECK ================= */
