@@ -23,7 +23,7 @@ const connectDB = async () => {
     mongoose.set("bufferCommands", false); // ❗ avoid fake buffering errors
 
     const conn = await mongoose.connect(process.env.MONGO_URI, {
-      serverSelectionTimeoutMS: 30000, // wait for Atlas primary
+      serverSelectionTimeoutMS: 80000, // wait for Atlas primary
     });
 
     console.log(`✅ MongoDB connected: ${conn.connection.host}`);
