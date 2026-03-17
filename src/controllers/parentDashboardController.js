@@ -281,10 +281,10 @@ export const getParentDashboard = async (req, res) => {
   } catch (error) {
 
     console.error("Parent Dashboard Error:", error);
-
+                                                        
     res.status(500).json({
       message: "Server Error"
     });
 
   }
-};
+};                          

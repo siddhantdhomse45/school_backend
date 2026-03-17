@@ -8,11 +8,11 @@ export const getParents = async (req, res) => {
     const parents = await User.find({ role: "parent" })
       .select("-password")
       .populate("studentId", "name className seatNumber")
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 });     
 
-    res.json(parents);
+    res.json(parents);      
   } catch (error) {
-    console.error("GET PARENTS ERROR:", error);
+    console.error("GET PARENTS ERROR:", error);    
     res.status(500).json({ message: "Server error" });
   }
 };

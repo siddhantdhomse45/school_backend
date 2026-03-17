@@ -11,7 +11,7 @@ export const getStudentsByClass = async (req, res) => {
     const students = await Student.find({ className });
 
     res.json(students);
-
+                                                                                                              
   } catch (err) {
     console.log(err);
     res.status(500).json({ message: err.message });
