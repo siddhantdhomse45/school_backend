@@ -195,3 +195,34 @@ export const getAvailableStudents = async (req, res) => {
   }
 };
 
+
+
+// controllers/parentController.js
+
+export const linkStudentToParent = async (req, res) => {
+  try {
+    const { parentId, studentId } = req.body;
+
+    const parent = await User.findById(parentId);
+    const student = await Student.findById(studentId);
+
+    if (!parent || parent.role !== "parent") {
+      return res.status(404).json({ message: "Parent not found" });
+    }
+
+    if (!student) {
+      return res.status(404).json({ message: "Student not found" });
+    }
+
+    parent.studentId = studentId;
+    await parent.save();
+
+    student.parentId = parentId;
+    await student.save();
+
+    res.json({ message: "Linked successfully" });
+
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
+};

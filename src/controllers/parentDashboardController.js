@@ -154,137 +154,52 @@
 
 
 
-
-
-
-
 import User from "../models/User.js";
-import Student from "../models/Student.js";
-import Attendance from "../models/Attendance.js";
 import Exam from "../models/Exam.js";
 import Fee from "../models/Fee.js";
 
 export const getParentDashboard = async (req, res) => {
   try {
+    const parentId = req.user.id;
 
-    const parentId = req.params.parentId;
-
-    const parent = await User.findById(parentId);
+    const parent = await User.findById(parentId).populate("studentId");
 
     if (!parent || parent.role !== "parent") {
       return res.status(404).json({ message: "Parent not found" });
     }
 
-    const student = await Student.findById(parent.studentId);
-
-    if (!student) {
-      return res.status(404).json({
-        message: "Student not linked to parent"
-      });
+    if (!parent.studentId) {
+      return res.status(404).json({ message: "No student linked" });
     }
 
-    /* Attendance */
-    const startDate = new Date(new Date().getFullYear(), 0, 1);
+    const studentId = parent.studentId._id;
 
-    const attendance = await Attendance.find({
-      userId: student._id,
-      userType: "Student",
-      date: { $gte: startDate },
-    }).sort({ date: -1 });
+    // Exams
+    const exams = await Exam.find({ studentId }).sort({ createdAt: -1 });
 
-    /* Exams */
+    // Fees
+    const fees = await Fee.find({ studentId });
 
-    const exams = await Exam.find({
-      studentId: student._id,
-    }).sort({ date: -1 });
-
-    /* Fees */
-
-    const fees = await Fee.find({
-      studentId: student._id,
-    }).sort({ date: -1 });
-
-    /* Attendance Summary */
-
-    const totalDays = attendance.length;
-
-    const presentDays = attendance.filter(
-      a => a.status === "Present"
-    ).length;
-
-    const absentDays = totalDays - presentDays;
-
-    const attendancePercentage =
-      totalDays === 0
-        ? 0
-        : Math.round((presentDays / totalDays) * 100);
-
-    /* Monthly Chart */
-
-    const months = [
-      "Jan","Feb","Mar","Apr","May","Jun",
-      "Jul","Aug","Sep","Oct","Nov","Dec"
-    ];
-
-    const monthlyData = {};
-
-    attendance.forEach((record) => {
-
-      const monthIndex = new Date(record.date).getMonth();
-
-      const month = months[monthIndex];
-
-      if (!monthlyData[month]) {
-        monthlyData[month] = { total: 0, present: 0 };
-      }
-
-      monthlyData[month].total += 1;
-
-      if (record.status === "Present") {
-        monthlyData[month].present += 1;
-      }
-
-    });
-
-    const monthly = months.map((m) => {
-
-      const data = monthlyData[m] || { total: 0, present: 0 };
-
-      const percentage =
-        data.total === 0
-          ? 0
-          : Math.round((data.present / data.total) * 100);
-
-      return {
-        month: m,
-        percentage,
-        present: data.present,
-        total: data.total
-      };
-
-    });
+    const totalFees = fees.reduce((a, f) => a + f.amount, 0);
+    const paidFees = fees
+      .filter(f => f.status === "Paid")
+      .reduce((a, f) => a + f.amount, 0);
 
     res.json({
-      student,
-      attendanceSummary: {
-        totalDays,
-        presentDays,
-        absentDays,
-        attendancePercentage,
-        monthly
+      student: {
+        name: parent.studentId.name,
+        className: parent.studentId.className,
       },
-      attendance,
       exams,
-      fees
+      fees: {
+        totalFees,
+        paidFees,
+        pendingFees: totalFees - paidFees,
+      },
     });
 
   } catch (error) {
-
-    console.error("Parent Dashboard Error:", error);
-                                                        
-    res.status(500).json({
-      message: "Server Error"
-    });
-
+    console.error("DASHBOARD ERROR:", error);
+    res.status(500).json({ message: "Server error" });
   }
-};                          
+};

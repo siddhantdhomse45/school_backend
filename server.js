@@ -44,7 +44,7 @@ app.use(
 app.use("/api/auth", authRoutes);
 app.use("/api/students", studentRoutes);
 app.use("/api/staff", staffRoutes);
-app.use("/api/parents", parentRoutes);
+app.use("/api/parent", parentRoutes);
 app.use("/api/attendance", attendanceRoutes);
 app.use("/api/admission", admissionRoutes);
 app.use("/api/contact", contactRoutes);

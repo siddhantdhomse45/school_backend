@@ -23,11 +23,24 @@
 
 
 
+// import express from "express";
+// import { getParentDashboard } from "../controllers/parentDashboardController.js";
+
+// const router = express.Router();
+
+// router.get("/dashboard/:parentId", getParentDashboard);
+
+// export default router;
+
+
 import express from "express";
+import { protect } from "../middleware/authMiddleware.js";
 import { getParentDashboard } from "../controllers/parentDashboardController.js";
+import { linkStudentToParent } from "../controllers/parentController.js";
 
 const router = express.Router();
 
-router.get("/dashboard/:parentId", getParentDashboard);
-
+// ✅ FINAL ROUTE
+router.get("/dashboard", protect, getParentDashboard);
+router.post("/link-student", linkStudentToParent);
 export default router;
