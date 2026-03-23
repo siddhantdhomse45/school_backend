@@ -1,3 +1,6 @@
+
+
+
 // import mongoose from "mongoose";
 
 // const userSchema = new mongoose.Schema(
@@ -35,12 +38,21 @@
 //       default: undefined,
 //     },
 
-//     // rollNumber: {
-//     //   type: String,
-//     //   unique: true,
-//     //   sparse: true, // ✅ allows multiple null values
-//     //   default: undefined,
-//     // },
+
+//     rollNumber: {
+//       type: String,
+//       unique: true,
+//       sparse: true, // ✅ allows multiple null values
+//       default: undefined,
+//     },
+
+//     // For parent users - link to their child's Student record
+//     studentId: {
+//       type: mongoose.Schema.Types.ObjectId,
+//       ref: "Student",
+//       default: null,
+//     },
+
 //   },
 //   { timestamps: true }
 // );
@@ -50,28 +62,14 @@
 
 
 
+
 import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema(
   {
-    name: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-
-    email: {
-      type: String,
-      required: true,
-      unique: true,
-      lowercase: true,
-      trim: true,
-    },
-
-    password: {
-      type: String,
-      required: true,
-    },
+    name: { type: String, required: true },
+    email: { type: String, required: true, unique: true },
+    password: { type: String, required: true },
 
     role: {
       type: String,
@@ -84,24 +82,29 @@ const userSchema = new mongoose.Schema(
       required: function () {
         return this.role !== "student";
       },
-      default: undefined,
     },
 
+    /* ✅ STUDENT FIELDS */
+    className: {
+      type: String,
+      required: function () {
+        return this.role === "student";
+      },
+    },
 
     rollNumber: {
       type: String,
-      unique: true,
-      sparse: true, // ✅ allows multiple null values
-      default: undefined,
+      required: function () {
+        return this.role === "student";
+      },
     },
 
-    // For parent users - link to their child's Student record
+    /* ✅ PARENT LINK */
     studentId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Student",
+      ref: "User", // 🔥 linking to student user
       default: null,
     },
-
   },
   { timestamps: true }
 );
