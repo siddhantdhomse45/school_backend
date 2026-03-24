@@ -10,7 +10,7 @@ import {
 const router = express.Router();
 
 router.post("/create", createAdmission);
-router.get("/all", getAllAdmissions);
+router.get("/", getAllAdmissions);
 router.get("/:id", getAdmissionById);
 router.put("/update/:id", updateAdmission);
 router.delete("/delete/:id", deleteAdmission);
