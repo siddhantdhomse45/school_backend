@@ -6,30 +6,30 @@ export const markAttendance = async (req, res) => {
   try {
     const { userId, userType, date, status } = req.body;
 
-    console.log("ATTENDANCE BODY:", req.body);
-
-    const existing = await Attendance.findOne({ userId, userType, date });
-
-    if (existing) {
-      existing.status = status;
-      await existing.save();
-      return res.json({ message: "Attendance updated" });
+    if (!userId || !userType || !date) {
+      return res.status(400).json({ message: "Missing fields" });
     }
 
-    await Attendance.create({
-      userId,
-      userType,
-      date,
-      status,
-    });
+    // CLEAR ATTENDANCE
+    if (status === "Not Marked") {
+      await Attendance.findOneAndDelete({ userId, userType, date });
+      return res.json({ message: "Attendance cleared" });
+    }
 
-    res.status(201).json({ message: "Attendance marked" });
+    // UPSERT (BEST PRACTICE 🔥)
+    await Attendance.findOneAndUpdate(
+      { userId, userType, date },
+      { status },
+      { upsert: true, new: true }
+    );
+
+    res.json({ message: "Attendance saved" });
+
   } catch (error) {
-    console.error("❌ ATTENDANCE ERROR:", error); // 👈 THIS
-    res.status(500).json({ message: "Server error" });
+    console.error("❌ ERROR:", error);
+    res.status(500).json({ message: error.message });
   }
 };
-
 
 
 /* ===== GET STUDENT ATTENDANCE ===== */
